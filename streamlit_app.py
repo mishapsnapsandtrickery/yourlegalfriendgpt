@@ -48,8 +48,8 @@ if st.button("🔍 계약서 분석하기"):
 {contract_text}
 """
             try:
-                response = openai.ChatCompletion.create(
-                    model="gpt-4o",
+                response = client.chat.completions.create(
+                    model="gpt-4o-mini",
                     messages=[
                         {"role": "system", "content": "당신은 계약서를 해석해주는 전문가 AI입니다."},
                         {"role": "user", "content": prompt}
