@@ -13,6 +13,7 @@ st.write(
 # via `st.secrets`, see https://docs.streamlit.io/develop/concepts/connections/secrets-management
 # 🔑 OpenAI API 키 입력받기
 openai_api_key = st.text_input("🔑 OpenAI API Key를 입력하세요", type="password")
+client = OpenAI(api_key=openai_api_key)
 
 # 📄 계약서 입력 UI는 항상 보이게
 st.subheader("📄 계약서 내용 입력")
