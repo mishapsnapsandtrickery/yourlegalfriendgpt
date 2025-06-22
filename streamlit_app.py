@@ -1,5 +1,6 @@
 import streamlit as st
 from openai import OpenAI
+import re
 
 # Show title and description.
 st.title("🖋️ GPT 약관해석기: 복잡한 계약도 쉽게")
@@ -37,10 +38,11 @@ if st.button("🔍 계약서 분석하기"):
             openai.api_key = openai_api_key
 
             prompt = f"""
-다음 계약서 조항을 이해하기 쉽게 요약하고, 일반인이 주의해야 할 위험 조항이 있으면 따로 알려줘.
-- 각 조항을 짧게 요약
+다음 계약서를 조항 단위로 나누어 이해하기 쉽게 설명해줘.
+- 각 조항은 '제1조', '제2조' 단위로 구분
+- 각 조항 밑에 한 줄 요약 + 중요한 내용 요약
 - 어려운 표현은 일상어로 바꾸기
-- 법적 위험(일방 면책, 위약금, 자동 갱신 등)은 ⚠️로 강조
+- 법적 위험(일방 면책, 위약금, 자동 갱신 등)은 ⚠️로 강조. 일반인이 주의해야 할 위험 조항이 있으면 알려줘.
 
 계약서 내용:
 {contract_text}
@@ -55,9 +57,18 @@ if st.button("🔍 계약서 분석하기"):
                     temperature=0.3,
                     max_tokens=1500,
                 )
+
+                DANGER_KEYWORDS = ["면책", "위약금", "일방적", "해지", "자동 갱신", "손해배상", "책임 없음"]
+
+                def highlight_danger_keywords(text):
+                    for keyword in DANGER_KEYWORDS:
+                        text = re.sub(f"({keyword})", r"<span style='color:red; font-weight:bold;'>⚠️ \1</span>", text)
+                    return text
+    
                 result = response.choices[0].message.content
+                highlighted_result = highlight_danger_keywords(result)
                 st.subheader("🧾 해석 결과")
-                st.markdown(result)
+                st.markdown(highlighted_result, unsafe_allow_html=True)
 
             except Exception as e:
                 st.error(f"GPT 호출 중 에러 발생: {e}")
